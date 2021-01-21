@@ -2,11 +2,8 @@
 #include "splines.h"
 #include "makespl.h"
 
-#define DEBUG 1
-
-//#include <getopt.h>
+#include <getopt.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 
 char *usage =
@@ -29,9 +26,9 @@ char *usage =
 int main(int argc, char **argv)
 {
   int opt;
-  char *inp = (char *)malloc(sizeof(char) * 50);
-  char *out = (char *)malloc(sizeof(char) * 50);
-  char *gpt = (char *)malloc(sizeof(char) * 50);
+  char *inp = NULL;
+  char *out = NULL;
+  char *gpt = NULL;
   double fromX = 0;
   double toX = 0;
   int n = 100;
@@ -43,7 +40,7 @@ int main(int argc, char **argv)
   pts.n = 0;
   spl.n = 0;
 
-  /*//process options, save user choices
+  /* process options, save user choices */
   while ((opt = getopt(argc, argv, "p:s:g:f:t:n:")) != -1)
   {
     switch (opt)
@@ -66,7 +63,7 @@ int main(int argc, char **argv)
     case 'n':
       n = atoi(optarg);
       break;
-    default:
+    default: /* '?' */
       fprintf(stderr, usage, progname);
       exit(EXIT_FAILURE);
     }
@@ -79,52 +76,46 @@ int main(int argc, char **argv)
     fprintf(stderr, "\n");
     fprintf(stderr, usage, progname);
     exit(EXIT_FAILURE);
-  }*/
-
-  printf("\n%s\n\n", usage);
-  strcpy(inp, argv[4]);
-  strcpy(out, argv[2]);
-  strcpy(gpt, argv[6]);
-  fromX = atof(argv[8]);
-  toX = atof(argv[10]);
-  n = atoi(argv[12]);
+  }
 
   /* if points-file was given, then read points, generate spline, save it to file */
   if (inp != NULL)
   {
-    FILE *OUT = NULL; /* we shall open it later, when we shall get points */
+    FILE *ouf = NULL; /* we shall open it later, when we shall get points */
 
-    FILE *in = fopen(inp, "r");
-    if (in == NULL)
+    FILE *inf = fopen(inp, "r");
+    if (inf == NULL)
     {
       fprintf(stderr, "%s: can not read points file: %s\n\n", argv[0], inp);
       exit(EXIT_FAILURE);
     }
 
-    if (read_pts_failed(in, &pts))
+    if (read_pts_failed(inf, &pts))
     {
       fprintf(stderr, "%s: bad contents of points file: %s\n\n", argv[0],
               inp);
       exit(EXIT_FAILURE);
     }
     else
-      fclose(in);
+      fclose(inf);
 
-    OUT = fopen(out, "w");
-    if (OUT == NULL)
+    ouf = fopen(out, "w");
+    if (ouf == NULL)
     {
-      fprintf(stderr, "%s: can not write spline file: %s\n\n", argv[0], OUT);
+      fprintf(stderr, "%s: can not write spline file: %s\n\n", argv[0], out);
       exit(EXIT_FAILURE);
     }
 
+    double *Tab_A = (double *)malloc(sizeof(double) * 5);
+
     //tworzenie pliku spl
     //wlasny aproksymator!
-    make_spl_4(&pts, &spl);
+    make_spl_4(&pts, &spl, Tab_A);
 
     if (spl.n > 0)
-      write_spl(&spl, OUT);
+      write_spl(&spl, ouf);
 
-    fclose(OUT);
+    fclose(ouf);
   }
   else if (out != NULL)
   { /* if point-file was NOT given, try to read splines from a file */
@@ -188,7 +179,7 @@ int main(int argc, char **argv)
 
     for (i = 0; i < n; i++)
       fprintf(gpf, "%g %g\n", fromX + i * dx,
-              value_spl(&spl, fromX + i * dx));
+              value_spl(&spl, fromX + i * dx, Tab_A));
 
     fclose(gpf);
   }

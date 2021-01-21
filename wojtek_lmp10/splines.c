@@ -32,17 +32,13 @@ void write_spl(spline_t *spl, FILE *ouf)
 {
   int i;
   fprintf(ouf, "%d\n", spl->n);
-  while(spl->y + i != NULL)
-    fprintf(ouf, "%")
-
-
   for (i = 0; i < spl->n; i++)
     fprintf(ouf, "%g %g %g %g %g\n", spl->x[i], spl->f[i], spl->f1[i],
             spl->f2[i], spl->f3[i]);
 }
 
 double
-value_spl(spline_t *spl, double x, double *A)   //dodalem double *A jako tablice ze wspolczynikami
+value_spl(spline_t *spl, double x, double *A) //dodalem double *A jako tablice ze wspolczynikami
 {
   int i;
   double dx;
@@ -51,14 +47,17 @@ value_spl(spline_t *spl, double x, double *A)   //dodalem double *A jako tablice
     if (spl->x[i] < x)
       break;
 
-    double sol = 0;
-    double ax = *(A + 1) * x;              //x^1 * a1  - skladnik wielomianu
-    double ax2 = *(A + 2) * x * x;         //x^2 * a2  - skladnik wielomianu
-    double ax3 = *(A + 3) * x * x * x;     //x^3 * a3  - skladnik wielomianu
-    double ax4 = *(A + 4) * x * x * x * x; //x^4 * a4  - skladnik wielomianu
+  double sol = 0;
+  double ax = *(A + 1) * x;              //x^1 * a1  - skladnik wielomianu
+  double ax2 = *(A + 2) * x * x;         //x^2 * a2  - skladnik wielomianu
+  double ax3 = *(A + 3) * x * x * x;     //x^3 * a3  - skladnik wielomianu
+  double ax4 = *(A + 4) * x * x * x * x; //x^4 * a4  - skladnik wielomianu
 
-    sol = *(A + 0) + ax + ax2 + ax3 + ax4; //wylicza wartosc wielomianu dla danego argumentu sumujac skladniki
+  sol = *(A + 0) + ax + ax2 + ax3 + ax4; //wylicza wartosc wielomianu dla danego argumentu sumujac skladniki
 
-    return sol;
+#ifdef DEBUG
+  printf("arg = %lf, ax = %lf, ax2 = %lf, ax3 = %lf, ax4 = %lf, sol = %lf\n", x, ax, ax2, ax3, ax4, sol);
+#endif
 
+  return sol;
 }
