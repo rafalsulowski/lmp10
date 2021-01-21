@@ -106,8 +106,9 @@ int main(int argc, char **argv)
       exit(EXIT_FAILURE);
     }
 
-  //tworzenie pliku spl
-    make_spl(&pts, &spl);
+    //tworzenie pliku spl
+    //wlasny aproksymator!
+    make_spl_4(&pts, &spl);
 
     if (spl.n > 0)
       write_spl(&spl, ouf);
