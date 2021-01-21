@@ -197,6 +197,7 @@ int main(int argc, char **argv)
 
 		fclose(gpf);
 	}
-
+	
+	free(Tab_A);
 	return 0;
 }
