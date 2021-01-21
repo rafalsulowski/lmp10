@@ -16,16 +16,16 @@
 double
 fi(double a, double b, int n, int i, double x)
 {
-	double h = (b - a) / (n - 1);	//co ile rosnie x
-	double h3 = h * h * h;	//h^3
+	double h = (b - a) / (n - 1); //co ile rosnie x
+	double h3 = h * h * h;		  //h^3
 	int hi[5] = {i - 2, i - 1, i, i + 1, i + 2};
 	double hx[5];
 	int j;
 
 	for (j = 0; j < 5; j++)
-		hx[j] = a + h * hi[j];	//wartosc wspolrzednej x
+		hx[j] = a + h * hi[j]; //wartosc wspolrzednej x
 
-	if ((x < hx[0]) || (x > hx[4]))	
+	if ((x < hx[0]) || (x > hx[4]))
 		return 0;
 	else if (x >= hx[0] && x <= hx[1])
 		return 1 / h3 * (x - hx[0]) * (x - hx[0]) * (x - hx[0]);
@@ -135,21 +135,21 @@ xfi(double a, double b, int n, int i, FILE *out)
 }
 
 void make_spl(points_t *pts, spline_t *spl)
-{	//pts->n - 1 zwraca liczbe punktow wczytanych z pliku spl
+{ //pts->n - 1 zwraca liczbe punktow wczytanych z pliku spl
 
 	matrix_t *eqs = NULL;
-	double *x = pts->x;	//wskazuje na tablice wspolrzednych x o rozmiarze pts->n
-	double *y = pts->y;	//wskazuje na tablice wspolrzednych y o rozmiarze pts->n
-	double a = x[0];	//poczatek przedzialu
-	double b = x[pts->n - 1];	//koniec przedzialu
-	int i, j, k;	//zmienne pomocnicze
-	
+	double *x = pts->x;		  //wskazuje na tablice wspolrzednych x o rozmiarze pts->n
+	double *y = pts->y;		  //wskazuje na tablice wspolrzednych y o rozmiarze pts->n
+	double a = x[0];		  //poczatek przedzialu
+	double b = x[pts->n - 1]; //koniec przedzialu
+	int i, j, k;			  //zmienne pomocnicze
+
 	//ustalamy rozmiar macierzy czyli stopien aproksymacji
-	int nb = pts->n - 3 > 10 ? 10 : pts->n - 3;	
-	char *nbEnv = getenv("APPROX_BASE_SIZE");	//pobiera rozmiar bazy
+	int nb = pts->n - 3 > 10 ? 10 : pts->n - 3;
+	char *nbEnv = getenv("APPROX_BASE_SIZE"); //pobiera rozmiar bazy
 
 	if (nbEnv != NULL && atoi(nbEnv) > 0)
-		nb = atoi(nbEnv);	//ustawia ten rozmiar
+		nb = atoi(nbEnv); //ustawia ten rozmiar
 
 	//tworzymy macierz o rozm 5x6 dla aproksymacji o bazie wiel. 4
 	eqs = make_matrix(nb, nb + 1);
@@ -183,13 +183,13 @@ void make_spl(points_t *pts, spline_t *spl)
 		for (i = 0; i < nb; i++)
 			for (k = 0; k < pts->n; k++)
 				add_to_entry_matrix(eqs, j, i, fi(a, b, nb, i, x[k]) * fi(a, b, nb, j, x[k]));
-				//eqs - macierz, i j indeksy, fi() * fi() wartosc
+		//eqs - macierz, i j indeksy, fi() * fi() wartosc
 
-				//n - ilosc wczytanych punktow
-		for (k = 0; k < pts->n; k++)	//dodaje prawe strony macierzy, czyli macierz B
+		//n - ilosc wczytanych punktow
+		for (k = 0; k < pts->n; k++) //dodaje prawe strony macierzy, czyli macierz B
 			add_to_entry_matrix(eqs, j, nb, y[k] * fi(a, b, nb, j, x[k]));
-			//eqs - macierz, j indeks wiersza, nb - indeks kolumny (kolumna z prawymi stronami)
-			//y[k] - wartosc wspolrzednej y danego punktu pomnozona razy wartosc funkcji
+		//eqs - macierz, j indeks wiersza, nb - indeks kolumny (kolumna z prawymi stronami)
+		//y[k] - wartosc wspolrzednej y danego punktu pomnozona razy wartosc funkcji
 	}
 
 #ifdef DEBUG
@@ -203,19 +203,17 @@ void make_spl(points_t *pts, spline_t *spl)
 		return;
 	}
 
-
 	//terazm mamy juz odpowiedzi (wartosci wspolczynikow a0, a1, ...) w ostatniej kolumnie macierzy esq
 
 #ifdef DEBUG
 	write_matrix(eqs, stdout);
 #endif
 
-	
-	if (alloc_spl(spl, nb) == 0)	//alokuje mniejsce
+	if (alloc_spl(spl, nb) == 0) //alokuje mniejsce
 	{
 		for (i = 0; i < spl->n; i++)
 		{
-			double xx = spl->x[i] = a + i * (b - a) / (spl->n - 1);	
+			double xx = spl->x[i] = a + i * (b - a) / (spl->n - 1);
 			xx += 10.0 * DBL_EPSILON; // zabezpieczenie przed ulokowaniem punktu w poprzednim przedziale
 			spl->f[i] = 0;
 			spl->f1[i] = 0;
@@ -223,7 +221,7 @@ void make_spl(points_t *pts, spline_t *spl)
 			spl->f3[i] = 0;
 			for (k = 0; k < nb; k++)
 			{
-				double ck = get_entry_matrix(eqs, k, nb);	//pobiera element o indeksie k,nb czyli element z wyliczoną wartoscią współczynika a0, a1 itd...
+				double ck = get_entry_matrix(eqs, k, nb); //pobiera element o indeksie k,nb czyli element z wyliczoną wartoscią współczynika a0, a1 itd...
 				spl->f[i] += ck * fi(a, b, nb, k, xx);
 				spl->f1[i] += ck * dfi(a, b, nb, k, xx);
 				spl->f2[i] += ck * d2fi(a, b, nb, k, xx);
@@ -259,93 +257,92 @@ void make_spl(points_t *pts, spline_t *spl)
 
 double potega(double x, int n)
 { // Potęga x^n
-    double sum = 1;
-    for (int i = 0; i < n; i++)
-    {
-        sum *= x;
-    }
-    return sum;
+	double sum = 1;
+	for (int i = 0; i < n; i++)
+	{
+		sum *= x;
+	}
+	return sum;
 }
 
-
 void make_spl_4(points_t *pts, spline_t *spl)
-{	//pts->n - 1 zwraca liczbe punktow wczytanych z pliku spl
+{ //pts->n - 1 zwraca liczbe punktow wczytanych z pliku spl
 
 	matrix_t *eqs = NULL;
-	double *x = pts->x;	//wskazuje na tablice wspolrzednych x o rozmiarze pts->n
-	double *y = pts->y;	//wskazuje na tablice wspolrzednych y o rozmiarze pts->n
-	double a = x[0];	//poczatek przedzialu
-	double b = x[pts->n - 1];	//koniec przedzialu
-	int i, j, k;	//zmienne pomocnicze
+	double *x = pts->x;		  //wskazuje na tablice wspolrzednych x o rozmiarze pts->n
+	double *y = pts->y;		  //wskazuje na tablice wspolrzednych y o rozmiarze pts->n
+	double a = x[0];		  //poczatek przedzialu
+	double b = x[pts->n - 1]; //koniec przedzialu
+	int i, j, k;			  //zmienne pomocnicze
 	double s = 0;
 
 	//ustalamy rozmiar macierzy czyli stopien aproksymacji
 	int nb = 4;
-	char *nbEnv = getenv("APPROX_BASE_SIZE");	//pobiera rozmiar bazy
+	char *nbEnv = getenv("APPROX_BASE_SIZE"); //pobiera rozmiar bazy
 
 	if (nbEnv != NULL && atoi(nbEnv) > 0)
-		nb = atoi(nbEnv);	//ustawia ten rozmiar
+		nb = atoi(nbEnv); //ustawia ten rozmiar
 
 	//tworzymy macierz o rozm 5x6 dla aproksymacji o bazie wiel. 4
-	nb = 4;	//wiel stopnia 4
+	nb = 4; //wiel stopnia 4
 	eqs = make_matrix(nb, nb + 1);
 
-    double xsum[10]; // tablica na potęgi xi^k
-    double A[5][5];  // Macierz A
-    double B[5];     // Macierz b
-    double Xodp[5];  //macierz na rozwiazania
+	double xsum[10]; // tablica na potęgi xi^k
+	double A[5][5];	 // Macierz A
+	double B[5];	 // Macierz b
+	double Xodp[5];	 //macierz na rozwiazania
 
 	// uzupełnienie xsum
-    for (int i = 0; i < 10; i++)
-    {
-        double s = 0;
-        for (int j = 0; j < 30; j++)
-        {
-            s += potega(*(x + j), i);
-        }
-        xsum[i] = s;
-    }
+	for (int i = 0; i < 10; i++)
+	{
+		double s = 0;
+		for (int j = 0; j < 30; j++)
+		{
+			s += potega(*(x + j), i);
+		}
+		xsum[i] = s;
+	}
 
-    // Uzupełnienie macierzy A i b
-    for (int i = 0; i < 5; i++)
-    {
-        for (int j = 0; j < 5; j++)
-        {
-            A[i][j] = xsum[i + j];
-        }
-        double s = 0;
-        for (int j = 0; j < 30; j++)
-        {
-            s += potega(*(x + j), i) * *(y + j);
-        }
-        B[i] = s;
-    }
+	// Uzupełnienie macierzy A i b
+	for (int i = 0; i < 5; i++)
+	{
+		for (int j = 0; j < 5; j++)
+		{
+			A[i][j] = xsum[i + j];
+		}
+		double s = 0;
+		for (int j = 0; j < 30; j++)
+		{
+			s += potega(*(x + j), i) * *(y + j);
+		}
+		B[i] = s;
+	}
 
-    for (int i = 0; i < 5; i++)
-    {
-        for (int j = 0; j < 5; j++)
-        {
-            printf("%lf , ", A[i][j]);
-        }
-        printf("\n");
-    }
+	for (int i = 0; i < 5; i++)
+	{
+		for (int j = 0; j < 5; j++)
+		{
+			printf("%lf , ", A[i][j]);
+		}
+		printf("\n");
+	}
 
-    printf("\n");
-    for (int i = 0; i < 5; i++)
-        printf("%lf\n", B[i]);
+	printf("\n");
+	for (int i = 0; i < 5; i++)
+		printf("%lf\n", B[i]);
 
 	//uzupelnia macierz wartosciami (sumy szeregow)
 	for (j = 0; j < nb; j++)
 	{
-		for (i = 0; i < nb; i++)				
+		for (i = 0; i < nb; i++)
 			add_to_entry_matrix(eqs, j, i, A[i][j]);
-			//eqs - macierz, i -> (id kolumny) j -> (id wiersza)
+		//eqs - macierz, i -> (id kolumny) j -> (id wiersza)
 
-				//n - ilosc wczytanych punktow
-		for (k = 0; k < pts->n; k++)	//dodaje prawe strony macierzy, czyli macierz B
+		//n - ilosc wczytanych punktow
+		for (k = 0; k < pts->n; k++) //dodaje prawe strony macierzy, czyli macierz B
 			add_to_entry_matrix(eqs, j, nb, B[i]);
-			//eqs - macierz, j indeks wiersza, nb - indeks kolumny (kolumna z prawymi stronami)
-			//y[k] - wartosc wspolrzednej y danego punktu pomnozona razy wartosc funkcji
+		//eqs - macierz, j indeks wiersza, nb - indeks kolumny (kolumna z prawymi stronami)
+		//y[k] - wartosc wspolrzednej y danego punktu pomnozona razy wartosc funkcji
 	}
 
 #ifdef DEBUG
@@ -359,19 +356,17 @@ void make_spl_4(points_t *pts, spline_t *spl)
 		return;
 	}
 
-
 	//terazm mamy juz odpowiedzi (wartosci wspolczynikow a0, a1, ...) w ostatniej kolumnie macierzy esq
 
 #ifdef DEBUG
 	write_matrix(eqs, stdout);
 #endif
 
-	
-	if (alloc_spl(spl, nb) == 0)	//alokuje mniejsce
+	if (alloc_spl(spl, nb) == 0) //alokuje mniejsce
 	{
 		for (i = 0; i < spl->n; i++)
 		{
-			double xx = spl->x[i] = a + i * (b - a) / (spl->n - 1);	
+			double xx = spl->x[i] = a + i * (b - a) / (spl->n - 1);
 			xx += 10.0 * DBL_EPSILON; // zabezpieczenie przed ulokowaniem punktu w poprzednim przedziale
 			spl->f[i] = 0;
 			spl->f1[i] = 0;
@@ -379,7 +374,7 @@ void make_spl_4(points_t *pts, spline_t *spl)
 			spl->f3[i] = 0;
 			for (k = 0; k < nb; k++)
 			{
-				double ck = get_entry_matrix(eqs, k, nb);	//pobiera element o indeksie k,nb czyli element z wyliczoną wartoscią współczynika a0, a1 itd...
+				double ck = get_entry_matrix(eqs, k, nb); //pobiera element o indeksie k,nb czyli element z wyliczoną wartoscią współczynika a0, a1 itd...
 				spl->f[i] += ck * fi(a, b, nb, k, xx);
 				spl->f1[i] += ck * dfi(a, b, nb, k, xx);
 				spl->f2[i] += ck * d2fi(a, b, nb, k, xx);
