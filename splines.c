@@ -38,7 +38,7 @@ void write_spl(spline_t *spl, FILE *ouf)
 }
 
 double
-value_spl(spline_t *spl, double x)
+value_spl(spline_t *spl, double x, double *A) //dodalem double *A jako tablice ze wspolczynikami
 {
   int i;
   double dx;
@@ -47,7 +47,17 @@ value_spl(spline_t *spl, double x)
     if (spl->x[i] < x)
       break;
 
-  dx = x - spl->x[i];
+  double sol = 0;
+  double ax = *(A + 1) * x;              //x^1 * a1  - skladnik wielomianu
+  double ax2 = *(A + 2) * x * x;         //x^2 * a2  - skladnik wielomianu
+  double ax3 = *(A + 3) * x * x * x;     //x^3 * a3  - skladnik wielomianu
+  double ax4 = *(A + 4) * x * x * x * x; //x^4 * a4  - skladnik wielomianu
 
-  return spl->f[i] + dx * spl->f1[i] + dx * dx / 2 * spl->f2[i] + dx * dx * dx / 6 * spl->f3[i];
+  sol = *(A + 0) + ax + ax2 + ax3 + ax4; //wylicza wartosc wielomianu dla danego argumentu sumujac skladniki
+
+#ifdef DEBUG
+  printf("arg = %lf, ax = %lf, ax2 = %lf, ax3 = %lf, ax4 = %lf, sol = %lf\n", x, ax, ax2, ax3, ax4, sol);
+#endif
+
+  return sol;
 }

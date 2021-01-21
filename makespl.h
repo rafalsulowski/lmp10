@@ -6,4 +6,6 @@
 
 void make_spl(points_t *pts, spline_t *spl);
 
+void make_spl_4(points_t *t, spline_t *spl, double *TAB_A);
+
 #endif
