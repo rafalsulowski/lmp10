@@ -18,6 +18,6 @@ int  read_spl ( FILE *inf,  spline_t *spl );
 
 void  write_spl ( spline_t *spl, FILE * ouf );
 
-double value_spl( spline_t *spl, double x);
+double value_spl( spline_t *spl, double x, double *A);
 
 #endif
