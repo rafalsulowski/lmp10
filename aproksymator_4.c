@@ -19,13 +19,43 @@ double potega(double x, int n)
 	return sum;
 }
 
+void make_xsum(double t[], double *x, int n){
+	double s;
+	for(int i = 0; i < 10; i++){
+		s = 0;
+		for(int j = 0; j < n; j++){
+			s += potega(*(x+j), i);	
+		}
+		t[i] = s;
+	}
+	
+}
+
+void make_AB(double a[][5], double b[], double *x, double *y, double xsum[]){
+	double s = 0;
+	for (int i = 0; i < 5; i++)
+	{
+		for (int j = 0; j < 5; j++)
+			a[i][j] = xsum[i + j];
+		s = 0;
+		for (int j = 0; j < 30; j++)
+		{
+			s += potega(*(x + j), i) * *(y + j);
+		}
+		b[i] = s;
+	}
+
+
+}
+
 void make_spl_4(points_t *pts, spline_t *spl) { 
 //pts->n - 1 zwraca liczbe punktow wczytanych z pliku spl
 
 	matrix_t *eqs = NULL;
 	double *x = pts->x;		  //wskazuje na tablice wspolrzednych x o rozmiarze pts->n
-	double *y = pts->y;		  //wskazuje na tablice wspolrzednych y o rozmiarze pts->n
+	double *y = pts->y; 			//wskazuje na tablice wspolrzednych y o rozmiarze pts->n
 	int i, j, k;			  //zmienne pomocnicze
+	int num_p = pts->n; 
 	double s = 0;
 
 	//ustalamy rozmiar macierzy czyli stopien aproksymacji
@@ -42,31 +72,9 @@ void make_spl_4(points_t *pts, spline_t *spl) {
 	double A[5][5];	 // Macierz A
 	double B[5];	 // Macierz b
 
-	// uzupełnienie xsum
-	for (int i = 0; i < 10; i++)
-	{
-		double s = 0;
-		for (int j = 0; j < 30; j++)
-		{
-			s += potega(*(x + j), i);
-		}
-		xsum[i] = s;
-	}
-
-	// Uzupełnienie macierzy A i B
-	for (int i = 0; i < 5; i++)
-	{
-		for (int j = 0; j < 5; j++)
-		{
-			A[i][j] = xsum[i + j];
-		}
-		double s = 0;
-		for (int j = 0; j < 30; j++)
-		{
-			s += potega(*(x + j), i) * *(y + j);
-		}
-		B[i] = s;
-	}
+	make_xsum(xsum, x, num_p); // uzupełnienie xsum
+	make_AB(A, B, x, y, xsum); // Uzupełnienie macierzy A i Bi
+	
 	/* Wypisanie Macierzy A i B */
 	/*
 	for (int i = 0; i < 5; i++)
