@@ -109,8 +109,8 @@ int main(int argc, char **argv)
     double *Tab_A = (double *)malloc(sizeof(double) * 5);
     if (Tab_A == NULL)
     {
-      printf("Nie udalo sie zadeklarowac miejsca na balice wspolczynikow!\n");
-      return 1;
+      printf("Nie udalo sie zadeklarowac miejsca na talice wspolczynikow!\n");
+      return EXIT_FAILURE;
     }
 
     //tworzenie pliku spl
