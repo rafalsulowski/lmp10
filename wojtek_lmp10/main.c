@@ -107,10 +107,23 @@ int main(int argc, char **argv)
     }
 
     double *Tab_A = (double *)malloc(sizeof(double) * 5);
+    if (Tab_A == NULL)
+    {
+      printf("Nie udalo sie zadeklarowac miejsca na balice wspolczynikow!\n");
+      return 1;
+    }
 
     //tworzenie pliku spl
     //wlasny aproksymator!
     make_spl_4(&pts, &spl, Tab_A);
+
+    //sprawdzenie wartosci wspolczynikow
+    printf("\n\n\nTabela wspolczynikow:\n");
+    for (int i = 0; i < 5; i++)
+    {
+      printf("Wspolczynik a%d = %lf\n", i, *(Tab_A + i));
+    }
+    printf("\n\n");
 
     if (spl.n > 0)
       write_spl(&spl, ouf);
