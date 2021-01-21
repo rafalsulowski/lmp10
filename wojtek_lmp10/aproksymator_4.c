@@ -125,4 +125,5 @@ void make_spl_4(points_t *pts, spline_t *spl, double *Tab_A)
 
 	//terazm mamy juz odpowiedzi (wartosci wspolczynikow a0, a1, ...) w ostatniej kolumnie macierzy esq
 	write_matrix(eqs, stdout);
+	alloc_spl(spl, nb);
 }
